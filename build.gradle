@@ -11,7 +11,7 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:' + project.forgeGradleVersion
 		classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
 	}
 }
@@ -19,67 +19,73 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
-group = 'com.minelittlepony'
-version = '1.12.2.2-SNAPSHOT'
-description = 'Mine Little Pony'
-
-targetCompatibility = 1.8
-sourceCompatibility = 1.8
+version = project.buildVersion + '-' + project.buildType
+group = project.group
+description = project.name_mlp
+ext.revision = project.buildRevision
 
 minecraft {
-	version = "1.12.2"
-	mappings = 'snapshot_20170919'
+	version = project.mcVersion
+	mappings = project.mcMappings
 	runDir = 'run'
-	replace '@VERSION@', project.version
+	replace '@VERSION@', (project.buildVersion + '-' + project.buildType)
+	replace '@MLP_NAME@', project.name_mlp
+	replace '@HD_NAME@', project.name_hd
 }
+
+mixin {
+	defaultObfuscationEnv notch
+}
+
+targetCompatibility = project.javaVersion
+sourceCompatibility = project.javaVersion
 
 sourceSets {
 	hdskins {
 		compileClasspath += main.compileClasspath
-		ext.refMap = 'hdskins.mixin.refmap.json'
+		ext.refMap = project.refCore_hd
 	}
 	main {
-		compileClasspath += hdskins.output
-		ext.refMap = 'minelp.mixin.refmap.json'
+		compileClasspath += hdskins.output + hdskins.compileClasspath
+		ext.refMap = project.refCore_mlp
 	}
 }
 
-litemod.json {
-	mcversion = '1.12.r2'
-	author = 'Verdana, Rene_Z, Mumfrey, Killjoy1221'
-	description = 'Mine Little Pony turns players and mobs into ponies'
-	description.minelittlepony = '''\
-		Mine Little Pony turns players and mobs into ponies
-		Press F9 ingame to access settings'''.stripIndent()
-	description.hdskinsmod = '''\
-		Separate skin server for Mine Little Pony that also supports HD skins.
-		Access via button on the main menu.'''.stripIndent()
+dependencies {
+	// use the same version as httpclient
+	hdskinsCompile('org.apache.httpcomponents:httpmime:4.3.2') {
+		transitive = false
+	}
+}
 
-	mixinConfigs += [
-		'minelp.mixin.json',
-		'hdskins.mixin.json'
+processResources {
+	def props = [
+		name: project.name_mlp,
+		version: project.version,
+		mcversion: project.mcVersion,
+		author: project.authors,
+		revision: project.buildRevision,
+		description: project.description_mlp,
+		description_minelittlepony: project.description_mlp,
+		description_hdskinsmod: project.description_hd,
+		mixinConfigs: project.mixins.split(',')
 	]
+	inputs.properties props
+	from(sourceSets.main.resources.srcDirs) {
+		include 'litemod.json'
+		expand props
+	}
+	// copy everything else, thats not the litemod.json
+	from(sourceSets.main.resources.srcDirs) {
+		exclude 'litemod.json'
+	}
 }
 
 jar {
 	from sourceSets.hdskins.output
-	from litemod
-}
-sourceJar {
-	// add hdskins sources
-	from sourceSets.hdskins.allSource
-}
-task srgJar(type: Jar) {
-	from sourceSets.main.output
-	from sourceSets.hdskins.output
-	from litemod
-	classifier "mc$minecraft.version-srg"
-	baseName "mod-${project.name.toLowerCase()}"
-}
-task skinZip(type: Zip) {
-	from fileTree('skins')
-	baseName 'Pony Skin Resources'
-	version 'v1'
+
+	// TODO relocate. LiteLoader excludes apache libs from classloading
+	from {configurations.hdskinsCompile.collect{it.isDirectory() ? it : zipTree(it)}}
 }
 
 reobf {
@@ -87,12 +93,25 @@ reobf {
 		mappingType = 'SEARGE'
 	}
 }
-mixin {
-	defaultObfuscationEnv notch
+
+sourceJar {
+	// add hdskins sources
+	from sourceSets.hdskins.allSource
 }
 
-// windows only
-task deploy(type: Copy, dependsOn: build) {
-	from jar.archivePath
-	into file("$System.env.APPDATA/.minecraft/mods")
+task srgJar(type: Jar) {
+	from sourceSets.main.output
+	from sourceSets.hdskins.output
+	
+	classifier "mc$minecraft.version-srg"
+	baseName "mod-${project.name_mlp.toLowerCase()}"
 }
+
+task skinZip(type: Zip, dependsOn: build) {
+	from fileTree('skins')
+	baseName project.skinsFile
+	version project.skinsVersion
+}
+
+// Just run the zip task. Please for god's sake, do what I *(*() TELL YOU TO DO JUST THIS ONCE
+build.finalizedBy(skinZip)
