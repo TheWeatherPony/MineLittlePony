@@ -18,7 +18,9 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
-version = project.mcVersion + '.' + project.buildVersion + '-' + project.buildType
+def mlp_ver = "${project.mcVersion}.${project.buildVersion}-${project.buildType}"
+
+version = mlp_ver
 group = project.group
 description = project.name_mlp
 
@@ -26,7 +28,7 @@ minecraft {
     version = project.mcVersion
     mappings = project.mcMappings
     runDir = 'run'
-    replace '@VERSION@', (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
+    replace '@VERSION@', mlp_ver
 }
 
 mixin {
@@ -56,7 +58,7 @@ dependencies {
 
 processResources {
     def props = [
-        version: project.mcVersion + '.' + project.buildVersion + '-' + project.buildType,
+        version: mlp_ver,
         mcversion: project.mcVersion,
         revision: project.buildRevision,
     ]
@@ -65,7 +67,7 @@ processResources {
         include 'litemod.json'
         expand props
     }
-    // copy everything else, thats not the litemod.json
+    // copy everything else thats not the litemod.json
     from(sourceSets.main.resources.srcDirs) {
         exclude 'litemod.json'
     }
@@ -73,7 +75,6 @@ processResources {
 
 jar {
     from sourceSets.hdskins.output
-    from litemod
 }
 
 reobf {
@@ -98,7 +99,7 @@ task srgJar(type: Jar) {
 task skinZip(type: Zip, dependsOn: build) {
     from fileTree('skins')
     baseName project.skinsFile
-    version (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
+    version mlp_ver
 		destinationDir = file('build/libs')
 }
 
