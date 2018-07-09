@@ -15,30 +15,26 @@ buildscript {
 		classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
 	}
 }
-
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
-version = project.buildVersion + '-' + project.buildType
-group = project.group
+version = project.mcVersion + '.' + project.buildVersion + '-' + project.buildType
+group = 'com.minelittlepony'
 description = project.name_mlp
-ext.revision = project.buildRevision
 
 minecraft {
 	version = project.mcVersion
 	mappings = project.mcMappings
 	runDir = 'run'
-	replace '@VERSION@', (project.buildVersion + '-' + project.buildType)
-	replace '@MLP_NAME@', project.name_mlp
-	replace '@HD_NAME@', project.name_hd
+	replace '@VERSION@', (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
 }
 
 mixin {
 	defaultObfuscationEnv notch
 }
 
-targetCompatibility = project.javaVersion
-sourceCompatibility = project.javaVersion
+targetCompatibility = 1.8
+sourceCompatibility = 1.8
 
 sourceSets {
 	hdskins {
@@ -60,15 +56,9 @@ dependencies {
 
 processResources {
 	def props = [
-		name: project.name_mlp,
-		version: project.version,
+		version: project.mcVersion + '.' + project.buildVersion + '-' + project.buildType,
 		mcversion: project.mcVersion,
-		author: project.authors,
 		revision: project.buildRevision,
-		description: project.description_mlp,
-		description_minelittlepony: project.description_mlp,
-		description_hdskinsmod: project.description_hd,
-		mixinConfigs: project.mixins.split(',')
 	]
 	inputs.properties props
 	from(sourceSets.main.resources.srcDirs) {
@@ -110,8 +100,7 @@ task srgJar(type: Jar) {
 task skinZip(type: Zip, dependsOn: build) {
 	from fileTree('skins')
 	baseName project.skinsFile
-	version project.skinsVersion
+	version (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
 }
 
-// Just run the zip task. Please for god's sake, do what I *(*() TELL YOU TO DO JUST THIS ONCE
 build.finalizedBy(skinZip)

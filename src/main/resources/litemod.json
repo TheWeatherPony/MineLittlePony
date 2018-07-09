@@ -1,12 +1,12 @@
 {
-    "name": "${name}",
+    "name": "Mine Little Pony",
     "mcversion": "${mcversion}",
     "version": "${version}",
     "revision": "${revision}",
-    "author": "${author}",
-    "description": "${description}",
-    "description.minelittlepony": "${description_minelittlepony}",
-    "description.hdskinsmod": "${description_hdskinsmod}",
+    "author": "Verdana, Rene_Z, Mumfrey, Killjoy1221, Sollace",
+    "description": "Mine Little Pony turns players and mobs into ponies",
+    "description.minelittlepony": "Mine Little Pony turns players and mobs into ponies\nPress F9 ingame to access settings",
+    "description.hdskinsmod": "Separate skin server for Mine Little Pony that also supports HD skins.\nAccess via button on the main menu.",
     "mixinConfigs": [
         "minelp.mixin.json",
         "hdskins.mixin.json"
