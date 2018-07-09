@@ -1,19 +1,19 @@
 buildscript {
-	repositories {
-		jcenter()
-		maven {
-			name 'forge'
-			url 'http://files.minecraftforge.net/maven'
-		}
-		maven {
-			name = 'sponge'
-			url = 'https://repo.spongepowered.org/maven'
-		}
-	}
-	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:' + project.forgeGradleVersion
-		classpath 'org.spongepowered:mixingradle:' + project.mixinGradleVersion
-	}
+    repositories {
+        jcenter()
+        maven {
+            name 'forge'
+            url 'http://files.minecraftforge.net/maven'
+        }
+        maven {
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:' + project.forgeGradleVersion
+        classpath 'org.spongepowered:mixingradle:' + project.mixinGradleVersion
+    }
 }
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
@@ -23,87 +23,83 @@ group = project.group
 description = project.name_mlp
 
 minecraft {
-	version = project.mcVersion
-	mappings = project.mcMappings
-	runDir = 'run'
-	replace '@VERSION@', (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
+    version = project.mcVersion
+    mappings = project.mcMappings
+    runDir = 'run'
+    replace '@VERSION@', (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
 }
 
 mixin {
-	defaultObfuscationEnv notch
+    defaultObfuscationEnv notch
 }
 
 targetCompatibility = 1.8
 sourceCompatibility = 1.8
 
 sourceSets {
-	hdskins {
-		compileClasspath += main.compileClasspath
-		ext.refMap = project.refCore_hd
-	}
-	main {
-		compileClasspath += hdskins.output + hdskins.compileClasspath
-		ext.refMap = project.refCore_mlp
-	}
+    hdskins {
+        compileClasspath += main.compileClasspath
+        ext.refMap = 'hdskins.mixin.refmap.json'
+    }
+    main {
+        compileClasspath += hdskins.output
+        ext.refMap = 'minelp.mixin.refmap.json'
+    }
 }
 
 dependencies {
-	// use the same version as httpclient
-	hdskinsCompile('org.apache.httpcomponents:httpmime:4.3.2') {
-		transitive = false
-	}
+    // use the same version as httpclient
+    hdskinsCompile('org.apache.httpcomponents:httpmime:4.3.2') {
+        transitive = false
+    }
 }
 
 processResources {
-	def props = [
-		version: project.mcVersion + '.' + project.buildVersion + '-' + project.buildType,
-		mcversion: project.mcVersion,
-		revision: project.buildRevision,
-	]
-	inputs.properties props
-	from(sourceSets.main.resources.srcDirs) {
-		include 'litemod.json'
-		expand props
-	}
-	// copy everything else, thats not the litemod.json
-	from(sourceSets.main.resources.srcDirs) {
-		exclude 'litemod.json'
-	}
+    def props = [
+        version: project.mcVersion + '.' + project.buildVersion + '-' + project.buildType,
+        mcversion: project.mcVersion,
+        revision: project.buildRevision,
+    ]
+    inputs.properties props
+    from(sourceSets.main.resources.srcDirs) {
+        include 'litemod.json'
+        expand props
+    }
+    // copy everything else, thats not the litemod.json
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'litemod.json'
+    }
 }
 
 jar {
-	from sourceSets.hdskins.output
-
-	// TODO relocate. LiteLoader excludes apache libs from classloading
-	from {configurations.hdskinsCompile.collect{it.isDirectory() ? it : zipTree(it)}}
-	
-	classifier ""
+    from sourceSets.hdskins.output
+    from litemod
 }
 
 reobf {
-	srgJar {
-		mappingType = 'SEARGE'
-	}
+    srgJar {
+        mappingType = 'SEARGE'
+    }
 }
 
 sourceJar {
-	// add hdskins sources
-	from sourceSets.hdskins.allSource
+    // add hdskins sources
+    from sourceSets.hdskins.allSource
 }
 
 task srgJar(type: Jar) {
-	from sourceSets.main.output
-	from sourceSets.hdskins.output
-	
-	classifier "srg"
-	baseName "mod-${project.name.toLowerCase()}"
+    from sourceSets.main.output
+    from sourceSets.hdskins.output
+    
+    classifier "srg"
+    baseName "mod-${project.name.toLowerCase()}"
 }
 
 task skinZip(type: Zip, dependsOn: build) {
-	from fileTree('skins')
-	baseName project.skinsFile
-	version (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
-	destinationDir = file('build/libs')
+    from fileTree('skins')
+    baseName project.skinsFile
+    version (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
+		destinationDir = file('build/libs')
 }
 
 build.finalizedBy(skinZip)
