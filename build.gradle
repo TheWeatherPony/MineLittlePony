@@ -12,14 +12,14 @@ buildscript {
 	}
 	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:' + project.forgeGradleVersion
-		classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+		classpath 'org.spongepowered:mixingradle:' + project.mixinGradleVersion
 	}
 }
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
 version = project.mcVersion + '.' + project.buildVersion + '-' + project.buildType
-group = 'com.minelittlepony'
+group = project.group
 description = project.name_mlp
 
 minecraft {
