@@ -101,6 +101,7 @@ task skinZip(type: Zip, dependsOn: build) {
 	from fileTree('skins')
 	baseName project.skinsFile
 	version (project.mcVersion + '.' + project.buildVersion + '-' + project.buildType)
+	destinationDir = file('build/libs')
 }
 
 build.finalizedBy(skinZip)
