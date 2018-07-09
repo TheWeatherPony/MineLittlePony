@@ -94,7 +94,7 @@ task srgJar(type: Jar) {
 	from sourceSets.hdskins.output
 	
 	classifier "mc$minecraft.version-srg"
-	baseName "mod-${project.name_mlp.toLowerCase()}"
+	baseName "mod-${project.name.toLowerCase()}"
 }
 
 task skinZip(type: Zip, dependsOn: build) {
