@@ -76,6 +76,8 @@ jar {
 
 	// TODO relocate. LiteLoader excludes apache libs from classloading
 	from {configurations.hdskinsCompile.collect{it.isDirectory() ? it : zipTree(it)}}
+	
+	classifier ""
 }
 
 reobf {
@@ -93,7 +95,7 @@ task srgJar(type: Jar) {
 	from sourceSets.main.output
 	from sourceSets.hdskins.output
 	
-	classifier "mc$minecraft.version-srg"
+	classifier "srg"
 	baseName "mod-${project.name.toLowerCase()}"
 }
 
