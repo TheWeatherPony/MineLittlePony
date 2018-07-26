@@ -7,6 +7,8 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.voxelmodpack.hdskins.HDSkinManager;
 import com.voxelmodpack.hdskins.LocalTexture;
 import com.voxelmodpack.hdskins.LocalTexture.IBlankSkinSupplier;
+import com.voxelmodpack.hdskins.PreviewTextureManager;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SkinManager;
 import net.minecraft.entity.EntityLivingBase;
@@ -48,10 +50,9 @@ public class EntityPlayerModel extends EntityLivingBase implements IBlankSkinSup
     }
 
     public void reloadRemoteSkin(SkinManager.SkinAvailableCallback listener) {
-        HDSkinManager.getPreviewTextureManager(profile).thenAccept(ptm -> {
-            skin.setRemote(ptm, listener);
-            elytra.setRemote(ptm, listener);
-        });
+        PreviewTextureManager ptm = HDSkinManager.getPreviewTextureManager(profile);
+        skin.setRemote(ptm, listener);
+        elytra.setRemote(ptm, listener);
     }
 
     public void setLocalTexture(File skinTextureFile, Type type) {

@@ -260,10 +260,8 @@ public final class HDSkinManager implements IResourceManagerReloadListener {
         this.enabled = enabled;
     }
 
-    public static CompletableFuture<PreviewTextureManager> getPreviewTextureManager(GameProfile profile) {
-        return INSTANCE.getGatewayServer().getPreviewTextures(profile).thenApply(mcu -> {
-           return new PreviewTextureManager(mcu.getTextures());
-        });
+    public static PreviewTextureManager getPreviewTextureManager(GameProfile profile) {
+        return new PreviewTextureManager(profile);
     }
 
     public void addClearListener(ISkinCacheClearListener listener) {

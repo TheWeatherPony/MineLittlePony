@@ -7,9 +7,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
 import com.voxelmodpack.hdskins.HDSkinManager;
 
 import net.minecraft.util.Session;
@@ -28,15 +26,6 @@ public abstract class AbstractSkinServer implements SkinServer {
         return CallableFutures.asyncFailableFuture(() -> {
             return doUpload(session, upload);
         }, HDSkinManager.skinUploadExecutor);
-    }
-
-    @Override
-    public CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile) {
-        return CallableFutures.asyncFailableFuture(() -> doGetPreviewTextures(profile), HDSkinManager.skinDownloadExecutor);
-    }
-
-    protected MinecraftTexturesPayload doGetPreviewTextures(GameProfile profile) throws AuthenticationException, IOException {
-        return loadProfileData(profile);
     }
 
     @Override

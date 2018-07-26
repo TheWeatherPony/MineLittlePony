@@ -6,6 +6,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
 import com.mojang.util.UUIDTypeAdapter;
@@ -15,6 +17,7 @@ import net.minecraft.util.Session;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -32,7 +35,9 @@ public interface SkinServer extends Exposable {
 
     CompletableFuture<SkinUploadResponse> uploadSkin(Session session, SkinUpload upload);
 
-    CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile);
+    default Map<Type, MinecraftProfileTexture> getPreviewTextures(GameProfile profile) throws AuthenticationException, IOException {
+        return loadProfileData(profile).getTextures();
+    }
 
     void validate() throws JsonParseException;
 

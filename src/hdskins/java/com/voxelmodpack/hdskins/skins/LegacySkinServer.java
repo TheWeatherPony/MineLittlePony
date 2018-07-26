@@ -40,14 +40,14 @@ public class LegacySkinServer extends AbstractSkinServer {
     }
 
     @Override
-    protected MinecraftTexturesPayload doGetPreviewTextures(GameProfile profile) throws AuthenticationException, IOException {
+    public Map<Type, MinecraftProfileTexture> getPreviewTextures(GameProfile profile) throws AuthenticationException, IOException {
         Map<Type, MinecraftProfileTexture> map = new EnumMap<>(Type.class);
 
         for (Type type : Type.values()) {
             map.put(type, new MinecraftProfileTexture(getPath(gateway, type, profile), null));
         }
 
-        return TexturesPayloadBuilder.createTexturesPayload(profile, map);
+        return map;
     }
 
     @SuppressWarnings("deprecation")

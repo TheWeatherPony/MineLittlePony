@@ -7,7 +7,6 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
 import com.mojang.util.UUIDTypeAdapter;
-import com.voxelmodpack.hdskins.HDSkinManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
@@ -26,7 +25,6 @@ import java.net.URI;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Nullable;
 
@@ -38,11 +36,6 @@ public class ValhallaSkinServer extends AbstractSkinServer {
 
     public ValhallaSkinServer(String address) {
         super(address);
-    }
-
-    @Override
-    public CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile) {
-        return CallableFutures.asyncFailableFuture(() -> loadProfileData(profile), HDSkinManager.skinDownloadExecutor);
     }
 
     @Override
