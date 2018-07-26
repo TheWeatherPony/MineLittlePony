@@ -50,5 +50,4 @@ public class NetClient {
 
         return MoreHttpResponses.execute(HDSkinManager.httpClient, request);
     }
-
 }
