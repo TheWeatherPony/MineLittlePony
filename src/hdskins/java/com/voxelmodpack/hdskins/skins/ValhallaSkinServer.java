@@ -2,7 +2,6 @@ package com.voxelmodpack.hdskins.skins;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -33,15 +32,12 @@ import javax.annotation.Nullable;
 
 // TODO: Fix it yourself
 @ServerType("valhalla")
-public class ValhallaSkinServer implements SkinServer {
-
-    @Expose
-    private final String address;
+public class ValhallaSkinServer extends AbstractSkinServer {
 
     private transient String accessToken;
 
     public ValhallaSkinServer(String address) {
-        this.address = address;
+        super(address);
     }
 
     @Override
@@ -62,25 +58,23 @@ public class ValhallaSkinServer implements SkinServer {
     }
 
     @Override
-    public CompletableFuture<SkinUploadResponse> uploadSkin(Session session, SkinUpload skin) {
+    protected SkinUploadResponse doUpload(Session session, SkinUpload skin) throws AuthenticationException, IOException {
         URI image = skin.getImage();
         Map<String, String> metadata = skin.getMetadata();
         MinecraftProfileTexture.Type type = skin.getType();
 
-        return CallableFutures.asyncFailableFuture(() -> {
-                authorize(session);
+        authorize(session);
 
-                try {
-                    return upload(session, image, type, metadata);
-                } catch (IOException e) {
-                    if (e.getMessage().equals("Authorization failed")) {
-                        accessToken = null;
-                        authorize(session);
-                        return upload(session, image, type, metadata);
-                    }
-                    throw e;
-                }
-        }, HDSkinManager.skinUploadExecutor);
+        try {
+            return upload(session, image, type, metadata);
+        } catch (IOException e) {
+            if (e.getMessage().equals("Authorization failed")) {
+                accessToken = null;
+                authorize(session);
+                return upload(session, image, type, metadata);
+            }
+            throw e;
+        }
     }
 
     private SkinUploadResponse upload(Session session, @Nullable URI image,
@@ -212,13 +206,6 @@ public class ValhallaSkinServer implements SkinServer {
 
     private URI getResponseURI() {
         return URI.create(String.format("%s/auth/response", this.address));
-    }
-
-    @Override
-    public String toString() {
-        return new IndentedToStringStyle.Builder(this)
-                .append("address", address)
-                .toString();
     }
 
     @SuppressWarnings("WeakerAccess")

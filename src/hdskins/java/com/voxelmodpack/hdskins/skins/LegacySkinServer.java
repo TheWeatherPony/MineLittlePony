@@ -1,6 +1,5 @@
 package com.voxelmodpack.hdskins.skins;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.annotations.Expose;
@@ -14,6 +13,7 @@ import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.util.Session;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -32,22 +32,15 @@ public class LegacySkinServer extends AbstractSkinServer {
     private static final Logger logger = LogManager.getLogger();
 
     @Expose
-    private final String address;
-
-    @Expose
     private final String gateway;
 
     public LegacySkinServer(String address, @Nullable String gateway) {
-        this.address = address;
-        this.gateway = gateway;
+        super(address);
+        this.gateway = Strings.isBlank(gateway) ? address : gateway;
     }
 
     @Override
     protected MinecraftTexturesPayload doGetPreviewTextures(GameProfile profile) throws AuthenticationException, IOException {
-        if (Strings.isNullOrEmpty(this.gateway)) {
-            throw new UnsupportedOperationException("Server does not have a gateway.");
-        }
-
         Map<Type, MinecraftProfileTexture> map = new EnumMap<>(Type.class);
 
         for (Type type : Type.values()) {
@@ -90,10 +83,6 @@ public class LegacySkinServer extends AbstractSkinServer {
 
     @Override
     public SkinUploadResponse doUpload(Session session, SkinUpload skin) throws AuthenticationException, IOException {
-        if (Strings.isNullOrEmpty(gateway)) {
-            throw new UnsupportedOperationException("Server does not have a gateway.");
-        }
-
         SkinServer.verifyServerConnection(session, SERVER_ID);
 
         NetClient client = new NetClient("POST", address);

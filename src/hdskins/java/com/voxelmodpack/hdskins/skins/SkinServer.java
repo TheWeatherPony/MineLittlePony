@@ -3,6 +3,7 @@ package com.voxelmodpack.hdskins.skins;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
@@ -32,6 +33,8 @@ public interface SkinServer extends Exposable {
     CompletableFuture<SkinUploadResponse> uploadSkin(Session session, SkinUpload upload);
 
     CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile);
+
+    void validate() throws JsonParseException;
 
     public static void verifyServerConnection(Session session, String serverId) throws AuthenticationException {
         MinecraftSessionService service = Minecraft.getMinecraft().getSessionService();

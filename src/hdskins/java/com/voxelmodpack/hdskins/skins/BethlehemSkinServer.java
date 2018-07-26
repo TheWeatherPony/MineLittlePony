@@ -2,7 +2,6 @@ package com.voxelmodpack.hdskins.skins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.gson.annotations.Expose;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
@@ -18,11 +17,8 @@ public class BethlehemSkinServer extends AbstractSkinServer {
 
     private static final String SERVER_ID = "7853dfddc358333843ad55a2c7485c4aa0380a51";
 
-    @Expose
-    private final String address;
-
-    private BethlehemSkinServer(String address) {
-        this.address = address;
+    public BethlehemSkinServer(String address) {
+        super(address);
     }
 
     @Override
@@ -76,12 +72,5 @@ public class BethlehemSkinServer extends AbstractSkinServer {
 
     private String getPath(GameProfile profile) {
         return String.format("%s/profile/%s", address, UUIDTypeAdapter.fromUUID(profile.getId()));
-    }
-
-    @Override
-    public String toString() {
-        return new IndentedToStringStyle.Builder(this)
-                .append("address", address)
-                .build();
     }
 }
