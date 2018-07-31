@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.voxelmodpack.hdskins.skins.CallableFutures;
 
 import net.minecraft.client.renderer.IImageBuffer;
@@ -25,13 +24,13 @@ public class PreviewTextureManager {
 
     private final GameProfile profile;
 
-    private Map<Type, MinecraftProfileTexture> textures = null;
+    private Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = null;
 
     PreviewTextureManager(GameProfile profile) {
         this.profile = profile;
     }
 
-    public CompletableFuture<PreviewTexture> getPreviewTexture(ResourceLocation location, Type type, ResourceLocation def, @Nullable SkinAvailableCallback callback) {
+    public CompletableFuture<PreviewTexture> getPreviewTexture(ResourceLocation location, MinecraftProfileTexture.Type type, ResourceLocation def, @Nullable SkinAvailableCallback callback) {
         return CallableFutures.asyncFailableFuture(() ->
             loadPreviewTexture(location, type, def, callback)
         , HDSkinManager.skinDownloadExecutor);
@@ -49,7 +48,7 @@ public class PreviewTextureManager {
 
         MinecraftProfileTexture texture = textures.get(type);
 
-        IImageBuffer buffer = type != Type.SKIN ? null : new ImageBufferDownloadHD().withCallback(() -> {
+        IImageBuffer buffer = type != MinecraftProfileTexture.Type.SKIN ? null : new ImageBufferDownloadHD().withCallback(() -> {
             if (callback != null) {
                 callback.skinAvailable(type, location, new MinecraftProfileTexture(texture.getUrl(), Maps.newHashMap()));
             }

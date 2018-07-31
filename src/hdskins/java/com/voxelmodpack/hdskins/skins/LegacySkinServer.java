@@ -50,13 +50,12 @@ public class LegacySkinServer extends AbstractSkinServer {
         return map;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException {
+    protected MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException {
         ImmutableMap.Builder<MinecraftProfileTexture.Type, MinecraftProfileTexture> builder = ImmutableMap.builder();
         for (MinecraftProfileTexture.Type type : MinecraftProfileTexture.Type.values()) {
-
             String url = getPath(this.address, type, profile);
+
             try {
                 builder.put(type, loadProfileTexture(profile, url));
             } catch (IOException e) {

@@ -22,7 +22,7 @@ public class BethlehemSkinServer extends AbstractSkinServer {
     }
 
     @Override
-    public MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException {
+    protected MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException {
         // TODO: Fix this
         try (MoreHttpResponses response = new NetClient("GET", getPath(profile)).send()) {
             if (!response.ok()) {
@@ -34,7 +34,7 @@ public class BethlehemSkinServer extends AbstractSkinServer {
     }
 
     @Override
-    public SkinUploadResponse doUpload(Session session, SkinUpload upload) throws AuthenticationException, IOException {
+    protected SkinUploadResponse doUpload(Session session, SkinUpload upload) throws AuthenticationException, IOException {
         SkinServer.verifyServerConnection(session, SERVER_ID);
 
         // TODO: Fix this

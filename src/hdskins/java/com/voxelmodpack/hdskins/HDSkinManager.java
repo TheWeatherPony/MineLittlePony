@@ -10,6 +10,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.properties.Property;
@@ -50,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -204,11 +204,11 @@ public final class HDSkinManager implements IResourceManagerReloadListener {
 
         for (SkinServer server : skinServers) {
             try {
-                server.loadProfileData(profile).getTextures().forEach(textures::putIfAbsent);
+                server.getProfileTextures(profile).forEach(textures::putIfAbsent);
                 if (textures.size() == Type.values().length) {
                     break;
                 }
-            } catch (IOException e) {
+            } catch (IOException | AuthenticationException e) {
                 LogManager.getLogger().trace(e);
             }
         }

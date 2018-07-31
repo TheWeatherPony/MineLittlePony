@@ -9,7 +9,6 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
 import com.mojang.util.UUIDTypeAdapter;
 import com.mumfrey.liteloader.modconfig.Exposable;
 import net.minecraft.client.Minecraft;
@@ -23,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface SkinServer extends Exposable {
 
+    // TODO: This doesn't belong here
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(UUID.class, new UUIDTypeAdapter())
             .create();
@@ -31,16 +31,15 @@ public interface SkinServer extends Exposable {
             "http://skins.voxelmodpack.com",
             "http://skinmanager.voxelmodpack.com"));
 
-    MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException;
-
     CompletableFuture<SkinUploadResponse> uploadSkin(Session session, SkinUpload upload);
 
-    default Map<Type, MinecraftProfileTexture> getPreviewTextures(GameProfile profile) throws AuthenticationException, IOException {
-        return loadProfileData(profile).getTextures();
-    }
+    Map<Type, MinecraftProfileTexture> getProfileTextures(GameProfile profile) throws AuthenticationException, IOException;
+
+    Map<Type, MinecraftProfileTexture> getPreviewTextures(GameProfile profile) throws AuthenticationException, IOException;
 
     void validate() throws JsonParseException;
 
+    // TODO: Why is this here? Why does it have to be static? Why is it public and static?
     public static void verifyServerConnection(Session session, String serverId) throws AuthenticationException {
         MinecraftSessionService service = Minecraft.getMinecraft().getSessionService();
         service.joinServer(session.getProfile(), session.getToken(), serverId);
