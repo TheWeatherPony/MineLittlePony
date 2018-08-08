@@ -11,6 +11,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mumfrey.liteloader.util.log.LiteLoaderLogger;
 import com.voxelmodpack.hdskins.HDSkinManager;
+import com.voxelmodpack.hdskins.PreviewTextureManager;
 import com.voxelmodpack.hdskins.skins.SkinServer;
 import com.voxelmodpack.hdskins.skins.SkinUpload;
 import com.voxelmodpack.hdskins.skins.SkinUploadResponse;
@@ -41,7 +42,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.DoubleBuffer;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
@@ -52,6 +56,9 @@ public class GuiSkins extends GuiScreen {
 
     private static final int MAX_SKIN_DIMENSION = 1024;
     private int updateCounter = 0;
+
+    private final Iterator<SkinServer> skinServers;
+    private SkinServer gateway;
 
     private GuiButton btnBrowse;
     private GuiButton btnUpload;
@@ -85,28 +92,37 @@ public class GuiSkins extends GuiScreen {
 
     private int lastMouseX = 0;
 
-    private static GuiSkins instance;
-
     protected CubeMap panorama;
 
     private MinecraftProfileTexture.Type textureType = SKIN;
     private boolean thinArmType = false;
 
-    public GuiSkins() {
+    public GuiSkins(List<SkinServer> servers) {
+        // Generate a cycled iterator that will never run out of entries.
+        // TODO cycle through servers using a button.
+        //Stream.generate(() -> servers).flatMap(Collection::stream).filter(SkinServer::verifyGateway).iterator();
+        this.skinServers = servers.stream().filter(SkinServer::verifyGateway).iterator();
+        if (this.skinServers.hasNext()) {
+            this.gateway = this.skinServers.next();
+        } else {
+            this.uploadError = "There are no valid skin servers available! Check your config.";
+        }
+
         Minecraft minecraft = Minecraft.getMinecraft();
         //        this.screenTitle = manager;
         GameProfile profile = minecraft.getSession().getProfile();
 
         this.localPlayer = getModel(profile);
         this.remotePlayer = getModel(profile);
-        RenderManager rm = Minecraft.getMinecraft().getRenderManager();
+        RenderManager rm = minecraft.getRenderManager();
         rm.renderEngine = minecraft.getTextureManager();
         rm.options = minecraft.gameSettings;
         rm.renderViewEntity = this.localPlayer;
-        this.reloadRemoteSkin();
-        this.fetchingSkin = true;
 
-        instance = this;
+        if (this.gateway != null) {
+            this.reloadRemoteSkin();
+            this.fetchingSkin = true;
+        }
 
         panorama = new CubeMap(this);
         initPanorama();
@@ -117,7 +133,7 @@ public class GuiSkins extends GuiScreen {
     }
 
     protected EntityPlayerModel getModel(GameProfile profile) {
-        return new EntityPlayerModel(profile);
+        return new EntityPlayerModel(this, profile);
     }
 
     @Override
@@ -216,7 +232,7 @@ public class GuiSkins extends GuiScreen {
 
     private void enableDnd() {
         GLWindow.current().setDropTargetListener((FileDropListener) files -> {
-            files.stream().findFirst().ifPresent(instance::loadLocalFile);
+            files.stream().findFirst().ifPresent(this::loadLocalFile);
         });
     }
 
@@ -272,6 +288,7 @@ public class GuiSkins extends GuiScreen {
 
     @Override
     protected void actionPerformed(GuiButton guiButton) {
+
         if (this.openFileThread == null && !this.uploadingSkin) {
             if (this.uploadError != null) {
                 this.uploadError = null;
@@ -340,6 +357,10 @@ public class GuiSkins extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) throws IOException {
+        if (this.gateway == null) {
+            // doing things might break everything if there is no gateway
+            return;
+        }
         if (this.uploadError != null) {
             this.uploadError = null;
         } else {
@@ -450,8 +471,7 @@ public class GuiSkins extends GuiScreen {
             }
             this.drawHoveringText(I18n.format(text), mouseX, y);
         }
-        if (this.btnAbout.isMouseOver()) {
-            SkinServer gateway = HDSkinManager.INSTANCE.getGatewayServer();
+        if (this.btnAbout.isMouseOver() && gateway != null) {
             this.drawHoveringText(Splitter.on("\r\n").splitToList(gateway.toString()), mouseX, mouseY);
         }
 
@@ -567,8 +587,7 @@ public class GuiSkins extends GuiScreen {
     private void clearUploadedSkin(Session session) {
         this.uploadingSkin = true;
         this.skinUploadMessage = I18n.format("hdskins.request");
-        HDSkinManager.INSTANCE.getGatewayServer()
-                .uploadSkin(session, new SkinUpload(this.textureType, null, getMetadata()))
+        gateway.uploadSkin(session, new SkinUpload(this.textureType, null, getMetadata()))
                 .thenAccept(this::onUploadComplete)
                 .exceptionally(this::onFailure);
     }
@@ -577,8 +596,7 @@ public class GuiSkins extends GuiScreen {
         this.uploadingSkin = true;
         this.skinUploadMessage = I18n.format("hdskins.upload");
         URI path = skinFile == null ? null : skinFile.toURI();
-        HDSkinManager.INSTANCE.getGatewayServer()
-                .uploadSkin(session, new SkinUpload(this.textureType, path, getMetadata()))
+        gateway.uploadSkin(session, new SkinUpload(this.textureType, path, getMetadata()))
                 .thenAccept(this::onUploadComplete)
                 .exceptionally(this::onFailure);
     }
@@ -607,6 +625,10 @@ public class GuiSkins extends GuiScreen {
         this.pendingRemoteSkinRefresh = true;
     }
 
+    CompletableFuture<PreviewTextureManager> loadTextures(GameProfile profile) {
+        return PreviewTextureManager.load(this.gateway, profile);
+    }
+
     static {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -614,4 +636,5 @@ public class GuiSkins extends GuiScreen {
             e.printStackTrace();
         }
     }
+
 }

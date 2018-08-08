@@ -2,7 +2,7 @@ package com.minelittlepony.hdskins.gui;
 
 import com.mojang.authlib.GameProfile;
 import com.voxelmodpack.hdskins.gui.EntityPlayerModel;
-
+import com.voxelmodpack.hdskins.gui.GuiSkins;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -15,8 +15,8 @@ public class EntityPonyModel extends EntityPlayerModel {
 
     public boolean wet = false;
 
-    public EntityPonyModel(GameProfile profile) {
-        super(profile);
+    public EntityPonyModel(GuiSkins skins, GameProfile profile) {
+        super(skins, profile);
     }
 
     @Override

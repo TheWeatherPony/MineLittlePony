@@ -139,6 +139,11 @@ public class LegacySkinServer implements SkinServer {
     }
 
     @Override
+    public boolean verifyGateway() {
+        return !Strings.isNullOrEmpty(this.gateway);
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this, IndentedToStringStyle.INSTANCE)
                 .append("address", this.address)

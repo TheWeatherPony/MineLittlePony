@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.voxelmodpack.hdskins.DynamicTextureImage;
-import com.voxelmodpack.hdskins.HDSkinManager;
 import com.voxelmodpack.hdskins.ImageBufferDownloadHD;
 import com.voxelmodpack.hdskins.PreviewTexture;
 import net.minecraft.client.Minecraft;
@@ -50,14 +49,17 @@ public class EntityPlayerModel extends EntityLivingBase {
     private ResourceLocation localElytraResource;
     private DynamicTexture localElytraTexture;
     private TextureManager textureManager;
-    public final GameProfile profile;
+
+    private final GameProfile profile;
+    private final GuiSkins skins;
 
     protected boolean remoteSkin = false;
     protected boolean hasLocalTexture = false;
     protected boolean previewThinArms = false;
 
-    public EntityPlayerModel(GameProfile profile) {
+    public EntityPlayerModel(GuiSkins skins, GameProfile profile) {
         super(new DummyWorld());
+        this.skins = skins;
         this.profile = profile;
         this.textureManager = Minecraft.getMinecraft().getTextureManager();
         this.remoteSkinResource = new ResourceLocation("skins/preview_" + this.profile.getName() + ".png");
@@ -77,7 +79,7 @@ public class EntityPlayerModel extends EntityLivingBase {
             this.textureManager.deleteTexture(this.remoteElytraResource);
         }
 
-        HDSkinManager.getPreviewTextureManager(this.profile).thenAccept(ptm -> {
+        this.skins.loadTextures(this.profile).thenAccept(ptm -> {
             this.remoteSkinTexture = ptm.getPreviewTexture(this.remoteSkinResource, Type.SKIN, getBlankSkin(), listener);
             this.remoteElytraTexture = ptm.getPreviewTexture(this.remoteElytraResource, Type.ELYTRA, getBlankElytra(), null);
         });
