@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Nullable;
 
+// TODO: Fix it yourself
 @ServerType("valhalla")
 public class ValhallaSkinServer implements SkinServer {
 
@@ -42,6 +43,10 @@ public class ValhallaSkinServer implements SkinServer {
         this.address = address;
     }
 
+    @Override
+    public CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile) {
+        return CallableFutures.asyncFailableFuture(() -> loadProfileData(profile), HDSkinManager.skinDownloadExecutor);
+    }
 
     @Override
     public MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException {

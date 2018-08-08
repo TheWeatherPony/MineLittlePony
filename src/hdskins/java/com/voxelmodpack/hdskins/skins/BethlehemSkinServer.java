@@ -4,18 +4,17 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.annotations.Expose;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
 import com.mojang.util.UUIDTypeAdapter;
-import com.voxelmodpack.hdskins.HDSkinManager;
 import net.minecraft.util.Session;
 
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @ServerType("bethlehem")
-public class BethlehemSkinServer implements SkinServer {
+public class BethlehemSkinServer extends AbstractSkinServer {
 
     private static final String SERVER_ID = "7853dfddc358333843ad55a2c7485c4aa0380a51";
 
@@ -39,27 +38,24 @@ public class BethlehemSkinServer implements SkinServer {
     }
 
     @Override
-    public CompletableFuture<SkinUploadResponse> uploadSkin(Session session, SkinUpload upload) {
-        return CallableFutures.asyncFailableFuture(() -> {
-            SkinServer.verifyServerConnection(session, SERVER_ID);
+    public SkinUploadResponse doUpload(Session session, SkinUpload upload) throws AuthenticationException, IOException {
+        SkinServer.verifyServerConnection(session, SERVER_ID);
 
-            // TODO: Fix this
-            NetClient client = new NetClient("POST", address);
+        // TODO: Fix this
+        NetClient client = new NetClient("POST", address);
 
-            client.putHeaders(createHeaders(session, upload));
+        client.putHeaders(createHeaders(session, upload));
 
-            if (upload.getImage() != null) {
-                client.putFile(upload.getType().toString().toLowerCase(Locale.US), "image/png", upload.getImage());
+        if (upload.getImage() != null) {
+            client.putFile(upload.getType().toString().toLowerCase(Locale.US), "image/png", upload.getImage());
+        }
+
+        try (MoreHttpResponses response = client.send()) {
+            if (!response.ok()) {
+                throw new IOException(response.text());
             }
-
-            try (MoreHttpResponses response = client.send()) {
-                if (!response.ok()) {
-                    throw new IOException(response.text());
-                }
-                return new SkinUploadResponse(response.text());
-            }
-
-        }, HDSkinManager.skinUploadExecutor);
+            return new SkinUploadResponse(response.text());
+        }
     }
 
     protected Map<String, ?> createHeaders(Session session, SkinUpload upload) {

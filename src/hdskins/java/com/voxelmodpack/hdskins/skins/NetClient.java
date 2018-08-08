@@ -1,23 +1,27 @@
 package com.voxelmodpack.hdskins.skins;
 
 import com.voxelmodpack.hdskins.HDSkinManager;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
-
 /**
  * Ew. Why so many builders? >.<
  */
 public class NetClient {
 
-    private final RequestBuilder rqBuilder;
+    private CloseableHttpClient client;
+
+    private RequestBuilder rqBuilder;
 
     private Map<String, ?> headers;
 
@@ -44,10 +48,16 @@ public class NetClient {
     public MoreHttpResponses send() throws IOException {
         HttpUriRequest request = rqBuilder.build();
 
-        for (Map.Entry<String, ?> parameter : headers.entrySet()) {
-            request.addHeader(parameter.getKey(), parameter.getValue().toString());
+        if (headers != null) {
+            for (Map.Entry<String, ?> parameter : headers.entrySet()) {
+                request.addHeader(parameter.getKey(), parameter.getValue().toString());
+            }
         }
 
-        return MoreHttpResponses.execute(HDSkinManager.httpClient, request);
+        if (client == null) {
+            client = HttpClients.createSystem();
+        }
+
+        return MoreHttpResponses.execute(client, request);
     }
 }

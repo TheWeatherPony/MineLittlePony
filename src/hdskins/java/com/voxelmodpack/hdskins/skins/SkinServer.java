@@ -9,7 +9,6 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
 import com.mojang.util.UUIDTypeAdapter;
 import com.mumfrey.liteloader.modconfig.Exposable;
-import com.voxelmodpack.hdskins.HDSkinManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
 
@@ -32,11 +31,9 @@ public interface SkinServer extends Exposable {
 
     CompletableFuture<SkinUploadResponse> uploadSkin(Session session, SkinUpload upload);
 
-    default CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile) {
-        return CallableFutures.asyncFailableFuture(() -> loadProfileData(profile), HDSkinManager.skinDownloadExecutor);
-    }
+    CompletableFuture<MinecraftTexturesPayload> getPreviewTextures(GameProfile profile);
 
-    static void verifyServerConnection(Session session, String serverId) throws AuthenticationException {
+    public static void verifyServerConnection(Session session, String serverId) throws AuthenticationException {
         MinecraftSessionService service = Minecraft.getMinecraft().getSessionService();
         service.joinServer(session.getProfile(), session.getToken(), serverId);
     }
