@@ -421,7 +421,7 @@ public class GuiSkins extends GuiScreen {
         drawCenteredString(this.fontRenderer, I18n.format("hdskins.manager"), width / 2, 10, 0xffffff);
 
         fontRenderer.drawStringWithShadow(I18n.format("hdskins.local"), 34, 34, 0xffffff);
-        fontRenderer.drawStringWithShadow(I18n.format("hdskins.server"), width / 2 + 34, 34, 0xffffff);
+        fontRenderer.drawStringWithShadow(I18n.format("hdskins.server"), width / 2f + 34, 34, 0xffffff);
 
         disableDepth();
         enableBlend();
@@ -436,7 +436,7 @@ public class GuiSkins extends GuiScreen {
         if (!this.localPlayer.isUsingLocalTexture()) {
             int opacity = this.fontRenderer.getStringWidth(this.skinMessage) / 2;
             Gui.drawRect(40, this.height / 2 - 12, this.width / 2 - 40, this.height / 2 + 12, 0xB0000000);
-            this.fontRenderer.drawStringWithShadow(this.skinMessage, (int) (xPos1 - opacity), this.height / 2 - 4, 0xffffff);
+            this.fontRenderer.drawStringWithShadow(this.skinMessage, (int) (xPos1 - opacity), this.height / 2f - 4, 0xffffff);
         }
         if (this.btnModeSkin.isMouseOver() || this.btnModeElytra.isMouseOver() || this.btnModeSkinnySkin.isMouseOver()) {
             int y = Math.max(mouseY, 16);
@@ -465,13 +465,13 @@ public class GuiSkins extends GuiScreen {
 
                 Gui.drawRect((int) (xPos2 - labelwidth), this.height / 2 - 16, this.width - 40, this.height / 2 + 16, 0xB0000000);
 
-                this.fontRenderer.drawStringWithShadow(opacity1, (int) (xPos2 - stringWidth1), this.height / 2 - 10, 0xffffff);
-                this.fontRenderer.drawStringWithShadow(stringWidth, (int) (xPos2 - stringWidth2), this.height / 2 + 2, 0xffffff);
+                this.fontRenderer.drawStringWithShadow(opacity1, (int) (xPos2 - stringWidth1), this.height / 2f - 10, 0xffffff);
+                this.fontRenderer.drawStringWithShadow(stringWidth, (int) (xPos2 - stringWidth2), this.height / 2f + 2, 0xffffff);
             } else {
                 opacity1 = I18n.format("hdskins.fetch");
                 int stringWidth1 = this.fontRenderer.getStringWidth(opacity1) / 2;
                 Gui.drawRect((int) (xPos2 - labelwidth), this.height / 2 - 12, this.width - 40, this.height / 2 + 12, 0xB0000000);
-                this.fontRenderer.drawStringWithShadow(opacity1, (int) (xPos2 - stringWidth1), this.height / 2 - 4, 0xffffff);
+                this.fontRenderer.drawStringWithShadow(opacity1, (int) (xPos2 - stringWidth1), this.height / 2f - 4, 0xffffff);
             }
         }
 
