@@ -1,7 +1,5 @@
 package com.voxelmodpack.hdskins.skins;
 
-import com.voxelmodpack.hdskins.HDSkinManager;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -19,7 +17,16 @@ import java.util.Map;
  */
 public class NetClient {
 
-    private CloseableHttpClient client;
+    private static CloseableHttpClient client = null;
+
+    public static CloseableHttpClient nativeClient() {
+        if (client == null) {
+            client = HttpClients.createSystem();
+        }
+
+        return client;
+    }
+
 
     private RequestBuilder rqBuilder;
 
@@ -29,6 +36,14 @@ public class NetClient {
         rqBuilder = RequestBuilder.create(method).setUri(uri);
     }
 
+    /**
+     * Adds a file to the request. Typically used with PUT/POST for uploading.
+     * @param key           Key identifier to index the file in the request.
+     * @param contentType   Type of file being sent. Usually the mime-type.
+     * @param file          The file or a link to the file.
+     *
+     * @return itself for chaining
+     */
     public NetClient putFile(String key, String contentType, URI file) {
         File f = new File(file);
         HttpEntity entity = MultipartEntityBuilder.create().addBinaryBody(key, f, ContentType.create(contentType), f.getName()).build();
@@ -38,13 +53,21 @@ public class NetClient {
         return this;
     }
 
+    /**
+     * Sets the headers to be included with this request.
+     * @param headers   Headers to send
+     *
+     * @return itself for chaining
+     */
     public NetClient putHeaders(Map<String, ?> headers) {
         this.headers = headers;
 
         return this;
     }
 
-    // TODO: Fix this
+    /**
+     * Commits and sends the request.
+     */
     public MoreHttpResponses send() throws IOException {
         HttpUriRequest request = rqBuilder.build();
 
@@ -54,10 +77,6 @@ public class NetClient {
             }
         }
 
-        if (client == null) {
-            client = HttpClients.createSystem();
-        }
-
-        return MoreHttpResponses.execute(client, request);
+        return MoreHttpResponses.execute(nativeClient(), request);
     }
 }

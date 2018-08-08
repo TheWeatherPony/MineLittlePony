@@ -33,6 +33,7 @@ public class ThreadDownloadImageETag extends SimpleTexture {
 
     @Nonnull
     private final File cacheFile;
+
     private final File eTagFile;
     private final String imageUrl;
 
@@ -155,11 +156,11 @@ public class ThreadDownloadImageETag extends SimpleTexture {
                 // true if no remote etag or does match
                 return remoteETag == null || localETag.equals(remoteETag.getValue());
             }
-            return false;
         } catch (IOException e) {
-            // it failed, so re-fetch.
-            return false;
+
         }
+
+        return false; // it failed, so re-fetch.
     }
 
     private void loadTextureFromServer(MoreHttpResponses response) {
