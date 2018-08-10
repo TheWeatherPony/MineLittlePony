@@ -43,6 +43,7 @@ public class ValhallaSkinServer implements SkinServer {
         this.address = address;
     }
 
+
     @Override
     public MinecraftTexturesPayload loadProfileData(GameProfile profile) throws IOException {
 
@@ -139,7 +140,7 @@ public class ValhallaSkinServer implements SkinServer {
             return;
         }
         GameProfile profile = session.getProfile();
-        String token = session.getToken();
+
         AuthHandshake handshake = authHandshake(profile.getName());
 
         if (handshake.offline) {
@@ -147,7 +148,7 @@ public class ValhallaSkinServer implements SkinServer {
         }
 
         // join the session server
-        Minecraft.getMinecraft().getSessionService().joinServer(profile, token, handshake.serverId);
+        Minecraft.getMinecraft().getSessionService().joinServer(profile, session.getToken(), handshake.serverId);
 
         AuthResponse response = authResponse(profile.getName(), handshake.verifyToken);
         if (!response.userId.equals(profile.getId())) {
@@ -158,9 +159,11 @@ public class ValhallaSkinServer implements SkinServer {
 
     private <T> T readJson(MoreHttpResponses resp, Class<T> cl) throws IOException {
         String type = resp.getResponse().getEntity().getContentType().getValue();
+
         if (!"application/json".equals(type)) {
             throw new IOException("Server returned a non-json response!");
         }
+
         if (resp.ok()) {
             return resp.json(cl);
         }
