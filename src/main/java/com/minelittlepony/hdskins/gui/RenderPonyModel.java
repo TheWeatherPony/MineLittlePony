@@ -8,11 +8,13 @@ import com.minelittlepony.pony.data.Pony;
 import com.minelittlepony.pony.data.PonyRace;
 import com.minelittlepony.render.layer.LayerPonyElytra;
 import com.minelittlepony.render.RenderPony;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.voxelmodpack.hdskins.gui.RenderPlayerModel;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelElytra;
 import net.minecraft.client.model.ModelPlayer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
@@ -76,7 +78,7 @@ public class RenderPonyModel extends RenderPlayerModel<EntityPonyModel> implemen
             return super.getEntityModel(playermodel);
         }
 
-        boolean canWet = playermodel.wet && (loc == playermodel.getBlankSkin() || race == PonyRace.SEAPONY);
+        boolean canWet = playermodel.wet && (loc == playermodel.getBlankSkin(Type.SKIN) || race == PonyRace.SEAPONY);
 
         playerModel = canWet ? PlayerModels.SEAPONY.getModel(slim) : thePony.getModel(true);
         playerModel.apply(thePony.getMetadata());
@@ -107,7 +109,7 @@ public class RenderPonyModel extends RenderPlayerModel<EntityPonyModel> implemen
 
             @Override
             protected ResourceLocation getElytraTexture(EntityPonyModel entity) {
-                return entity.getElytraTexture();
+                return entity.getLocal(Type.ELYTRA).getTexture();
             }
         };
     }
